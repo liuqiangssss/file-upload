@@ -7,9 +7,9 @@ import (
 )
 
 type Response struct {
-	code    int         `json:"code"`    // 自定义错误码
-	data    interface{} `json:"data"`    // 数据
-	message string      `json:"message"` // 信息
+	Code    int         `json:"code"`    // 自定义错误码
+	Data    interface{} `json:"data"`    // 数据
+	Message string      `json:"message"` // 信息
 }
 
 // 分片上传
