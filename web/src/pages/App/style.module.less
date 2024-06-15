@@ -1,0 +1,42 @@
+.app_container {
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    row-gap: 10px;
+    .header_switch {
+        display: flex;
+        align-items: center;
+        column-gap: 15px;
+        height: 60px;
+        padding: 15px;
+        border-bottom: 1px solid #ccc;
+        .type_button {
+            padding: 10px 15px;
+            border-radius: 3px;
+            background: #87d5f5;
+            cursor: pointer;
+            font-size: 12px;
+            &:hover {
+                background: #0facec;
+            }
+        }
+        .type_active {
+            background: #0facec;
+        }
+    }
+    .body_show {
+        flex: 1;
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        row-gap: 10px;
+        .file_upload {
+            padding: 10px;
+        }
+        .file_table_show {
+            flex: 1;
+            width: 100%;
+        }
+    }
+}
