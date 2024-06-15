@@ -1,4 +1,6 @@
-import { ChangeEvent } from "react";
+import { ChangeEvent, useState } from "react";
+import { FileShow } from "./FileShow";
+import { FileUploader, fileUploader } from "../../utils/File";
 import Style from "./style.module.less";
 
 interface IFileUpload {
@@ -6,7 +8,7 @@ interface IFileUpload {
 }
 
 export const FileUpload: React.FC<IFileUpload> = ({ isMultiple = false }) => {
-
+  const [selectFileData, setSelectFileData] = useState<{ file: File, selectTime: number }[]>([])
   // 选择文件
   const selectedFileEvent = (e: ChangeEvent<HTMLInputElement>) => {
     console.log(e.target.files);
@@ -15,23 +17,35 @@ export const FileUpload: React.FC<IFileUpload> = ({ isMultiple = false }) => {
     }
     const fileList = e.target.files as FileList;
     const file = fileList[0];
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      console.log(e.target!.result);
-    };
-    reader.readAsDataURL(file);
+    setSelectFileData([{
+      file,
+      selectTime: Date.now()
+    }])
+    fileUploader.upload(file)
+  };
+
+  const showFileDom = (files: { file: File, selectTime: number }[]) => {
+    return files.map((file) => {
+      return <FileShow key={file.selectTime} file={file.file} />
+    })
   }
 
-
   return (
-    <div className={Style.file_upload}>
-      <div className={Style.upload_icon}>+</div>
-      <input
-        type="file"
-        className={Style.input_button}
-        multiple={isMultiple}
-        onChange={selectedFileEvent}
-      />
+    <div className={Style.file_upload_container}>
+      <div className={Style.file_upload}>
+        <div className={Style.upload_icon}>+</div>
+        <input
+          type="file"
+          className={Style.input_button}
+          multiple={isMultiple}
+          onChange={selectedFileEvent}
+        />
+      </div>
+      <div className={Style.show_file}>
+        {
+          showFileDom(selectFileData)
+        }
+      </div>
     </div>
   );
 };
