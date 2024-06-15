@@ -53,14 +53,14 @@ export const App: React.FC = () => {
   return (
     <div className={Style.app_container}>
       <header className={Style.header_switch}>{typeButton}</header>
-      <body className={Style.body_show}>
+      <div className={Style.body_show}>
         <div className={Style.file_upload}>
           <FileUpload />
         </div>
         <div className={Style.file_table_show}>
           <FileTable />
         </div>
-      </body>
+      </div>
     </div>
   );
 };
