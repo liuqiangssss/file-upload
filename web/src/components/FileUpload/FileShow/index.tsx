@@ -1,11 +1,13 @@
 import React, { useEffect, useState } from "react";
+import { Progress } from "antd";
 import Style from './style.module.less'
 
 interface IFileShowProps {
-  file: File
+  file: File,
+  uploadProgress: number
 }
 
-export const FileShow: React.FC<IFileShowProps> = ({ file }) => {
+export const FileShow: React.FC<IFileShowProps> = ({ file, uploadProgress }) => {
   const [showContent, setShowContent] = useState<string>('')
   
 
@@ -37,5 +39,8 @@ export const FileShow: React.FC<IFileShowProps> = ({ file }) => {
     {
       showContentDom()
     }
+    <div>
+      <Progress type="line" percent={uploadProgress}  size='small' />
+    </div>
   </div>
 }
