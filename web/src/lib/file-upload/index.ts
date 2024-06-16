@@ -23,7 +23,7 @@ class FileUploader {
     this.fragmentUrl = fragmentUrl;
   }
 
-  public upload({
+  public async upload({
     type = "whole",
     file,
     onFinish,
@@ -34,24 +34,26 @@ class FileUploader {
     onFinish?: OnFinish;
     onProgress?: OnProgress;
   }) {
+    const { chunks, fileHash } = await this.chunkProcesser.chunkProcess(file)
     if (type === "whole") {
-      this.wholeUpload({ file, onFinish, onProgress });
+      this.wholeUpload({ file, fileHash, onFinish, onProgress });
     } else if (type === "fragment") {
-      this.fragmentUpload({ file, onFinish, onProgress });
+      this.fragmentUpload({ chunks, fileHash, onFinish, onProgress });
     }
   }
 
   // 分片上传
   private async fragmentUpload({
-    file,
+    chunks,
+    fileHash,
     onFinish,
     onProgress,
   }: {
-    file: File;
+    chunks: Blob[]
+    fileHash: string
     onFinish?: OnFinish;
     onProgress?: OnProgress;
   }) {
-    const { chunks, fileHash } = await this.chunkProcesser.chunkProcess(file);
     console.log("🚀 ~ FileUploader ~ fileHash:", fileHash);
     let chunkIndex = 1;
     const request = chunks.map((chunk, index) => {
@@ -77,17 +79,20 @@ class FileUploader {
   }
 
   // 整体上传
-  private wholeUpload({
+  private async wholeUpload({
     file,
+    fileHash,
     onFinish,
     onProgress,
   }: {
     file: File;
+    fileHash: string
     onFinish?: OnFinish;
     onProgress?: OnProgress;
   }) {
     const formData = new FormData();
     formData.append("file", file);
+    formData.append("hash", fileHash);
     this.uploadSend.upload({
       formData,
       onFinish,

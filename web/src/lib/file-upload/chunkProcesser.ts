@@ -30,7 +30,7 @@ class ChunkProcesser {
     return chunkArr
   }
 
-  private getHash(chunks: Blob[]): Promise<string> {
+  public getHash(chunks: Blob[]): Promise<string> {
     return new Promise((resolve, reject) => {
       const worker = new Worker();
       worker.postMessage({ chunks });

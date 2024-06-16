@@ -85,7 +85,7 @@ class FileUploader {
     if (needSlice) {
       return this.uploadChunks(hash, chunks, onProgress, onFinish);
     } else {
-      return this.uploadFile(file, onProgress, onFinish);
+      return this.uploadFile(file, hash,onProgress, onFinish);
     }
   }
 
@@ -125,11 +125,13 @@ class FileUploader {
 
   private async uploadFile(
     file: File,
+    hash: string,
     onProgress?: (percent: number) => void,
     onFinish?: (result: Response) => void
   ) {
     const formData = new FormData();
     formData.append("file", file);
+    formData.append("hash", hash);
     this.sendRequest({ formData, onProgress, onFinish });
   }
 
