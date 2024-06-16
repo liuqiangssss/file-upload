@@ -1,9 +1,9 @@
-import { IUpload, UploadSend, OnFinish, OnProgress } from "./upload";
+import { UploadSend, OnFinish, OnProgress } from "./upload";
 import { ChunkProcesser } from "./chunkProcesser";
 import {
   SINGLE_FILE_UPLOAD_URL,
   MULTIPLE_FILE_CHUNK_UPLOAD_URL,
-} from "../../server/request";
+} from "../../server";
 
 interface IFileUploader {
   chunkSize?: number;

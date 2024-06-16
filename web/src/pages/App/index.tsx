@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { FileUpload } from "../../components/FileUpload";
 import { FileTable } from "../../components/FileTable";
+import { getUploadFileInfo } from "../../server";
 import Style from "./style.module.less";
 
 export enum FileUploadType {

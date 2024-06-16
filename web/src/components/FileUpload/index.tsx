@@ -1,12 +1,7 @@
 import { ChangeEvent, useState } from "react";
 import { message } from "antd";
 import { FileShow } from "./FileShow";
-// import { fileUploader } from "../../utils/File";
 import { fileUploader } from "../../lib/file-upload";
-import {
-  SINGLE_FILE_UPLOAD_URL,
-  MULTIPLE_FILE_CHUNK_UPLOAD_URL,
-} from "../../server/request";
 import { FileUploadType } from "../../pages/App";
 import Style from "./style.module.less";
 
