@@ -30,6 +30,7 @@ export const FileUpload: React.FC<IFileUpload> = ({ uploadType }) => {
         selectTime: Date.now(),
       },
     ]);
+    setUploadPercent(0)
     fileUploader.upload({
       type: uploadType === FileUploadType.single ? 'whole' : 'fragment',
       file,
