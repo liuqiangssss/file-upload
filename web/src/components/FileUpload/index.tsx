@@ -1,25 +1,34 @@
 import { ChangeEvent, useState } from "react";
+import { message } from "antd";
 import { FileShow } from "./FileShow";
-import { FileUploader, fileUploader } from "../../utils/File";
+// import { fileUploader } from "../../utils/File";
+import { fileUploader } from "../../lib/file-upload";
+import {
+  SINGLE_FILE_UPLOAD_URL,
+  MULTIPLE_FILE_CHUNK_UPLOAD_URL,
+} from "../../server/request";
+import { FileUploadType } from "../../pages/App";
 import Style from "./style.module.less";
 
 interface IFileUpload {
-  isMultiple?: boolean;
+  uploadType: FileUploadType;
 }
 
-export const FileUpload: React.FC<IFileUpload> = ({ isMultiple = false }) => {
+export const FileUpload: React.FC<IFileUpload> = ({ uploadType }) => {
   const [selectFileData, setSelectFileData] = useState<
     { file: File; selectTime: number }[]
   >([]);
   const [uploadPercent, setUploadPercent] = useState<number>(0);
   // 选择文件
   const selectedFileEvent = (e: ChangeEvent<HTMLInputElement>) => {
-    console.log(e.target.files);
     if (e.target.files?.length === 0) {
       return;
     }
     const fileList = e.target.files as FileList;
     const file = fileList[0];
+    if (!fileSizeValidate(file)) {
+      return;
+    } // 文件大小判断
     setSelectFileData([
       {
         file,
@@ -27,11 +36,12 @@ export const FileUpload: React.FC<IFileUpload> = ({ isMultiple = false }) => {
       },
     ]);
     fileUploader.upload({
+      type: uploadType === FileUploadType.single ? 'whole' : 'fragment',
       file,
-      onProgress: (percent: number) => {
+      onProgress: async (percent: number) => {
         setUploadPercent(percent);
       },
-      onFinish: (resp: any) => {
+      onFinish: async  (resp: any) => {
         console.log(resp, "resp");
       },
     });
@@ -49,6 +59,18 @@ export const FileUpload: React.FC<IFileUpload> = ({ isMultiple = false }) => {
     });
   };
 
+  const fileSizeValidate = (file: File) => {
+    if (file.size > 1024 * 1024 * 10 && uploadType === FileUploadType.single) {
+      message.open({
+        content: "文件整体上传大小不可以超过10M哦！",
+        type: "warning",
+        duration: 2,
+      });
+      return false;
+    }
+    return true;
+  };
+
   return (
     <div className={Style.file_upload_container}>
       <div className={Style.file_upload}>
@@ -56,7 +78,7 @@ export const FileUpload: React.FC<IFileUpload> = ({ isMultiple = false }) => {
         <input
           type="file"
           className={Style.input_button}
-          multiple={isMultiple}
+          multiple={true}
           onChange={selectedFileEvent}
         />
       </div>

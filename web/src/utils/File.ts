@@ -62,11 +62,10 @@ class FileProcessor {
 }
 
 class FileUploader {
-  private readonly url: string;
+  private url: string = '';
   private readonly fileProcessor: FileProcessor;
 
-  constructor({ url }: any) {
-    this.url = url;
+  constructor() {
     this.fileProcessor = new FileProcessor();
   }
 
@@ -74,13 +73,15 @@ class FileUploader {
     file,
     onProgress,
     onFinish,
+    url,
   }: {
     file: File;
     onProgress?: (percent: number) => void;
     onFinish?: (result: Response) => void;
+    url: string;
   }) {
+    this.url = url;  // 设置请求url
     const { hash, needSlice, chunks } = await this.fileProcessor.process(file);
-    console.log("====================", hash, needSlice, chunks, file);
     if (needSlice) {
       return this.uploadChunks(hash, chunks, onProgress, onFinish);
     } else {
@@ -106,7 +107,6 @@ class FileUploader {
           }
           const resp = JSON.parse(xhr.responseText);
           resolve(onFinish && onFinish(resp));
-          resolve(xhr.responseText);
         } else {
           reject(new Error(xhr.responseText));
         }
@@ -133,52 +133,31 @@ class FileUploader {
     this.sendRequest({ formData, onProgress, onFinish });
   }
 
-  // private async uploadFile(file: File) {
-  //   const formData = new FormData();
-  //   formData.append("file", file);
-  //   return fetch(this.url, {
-  //     method: "POST",
-  //     body: formData,
-  //   });
-  // }
-
-  // private async uploadChunks(hash: string, chunks: Blob[]) {
-  //   const requests = chunks.map((chunk, index) => {
-  //     const formData = new FormData();
-  //     formData.append("file", chunk);
-  //     formData.append("hash", hash);
-  //     formData.append("index", index.toString());
-  //     formData.append("total", chunks.length.toString());
-  //     return fetch(this.url, {
-  //       method: "POST",
-  //       body: formData,
-  //     });
-  //   });
-  //   return Promise.all(requests);
-  // }
-
   private async uploadChunks(
     hash: string,
     chunks: Blob[],
     onProgress?: (percent: number) => void,
     onFinish?: (result: Response) => void
   ) {
-    for (let i = 0; i < chunks.length; i++) {
-      const chunkIndex = i;
+    let index = 1;
+    const requests = chunks.map((chunk, chunkIndex) => {
       const formData = new FormData();
-      formData.append("file", chunks[i]);
+      formData.append("file", chunk);
       formData.append("hash", hash);
       formData.append("index", chunkIndex.toString());
       formData.append("total", chunks.length.toString());
-      await this.sendRequest({ formData, onFinish: onFinish });
-      const percent = Math.floor(((chunkIndex + 1) / chunks.length) * 100);
-      onProgress && onProgress(percent);
-    }
+      const sendFinish = (resp: any) => {
+        const percent = Math.floor((index / chunks.length) * 100);
+        index++;
+        onProgress && onProgress(percent);
+        onFinish && onFinish(resp);
+      };
+      return this.sendRequest({ formData, onFinish: sendFinish });
+    });
+    await Promise.all(requests);
   }
 }
 
-const fileUploader = new FileUploader({
-  url: "http://localhost:8080/api/upload",
-});
+const fileUploader = new FileUploader();
 
 export { fileUploader, FileProcessor, FileUploader };
