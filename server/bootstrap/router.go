@@ -2,8 +2,8 @@ package bootstrap
 
 import (
 	"context"
+	"file-upload/common/middleware"
 	"file-upload/global"
-	"file-upload/middleware"
 	"file-upload/routers"
 	"github.com/gin-gonic/gin"
 	"log"
