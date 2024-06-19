@@ -71,6 +71,47 @@ func UploadFile(file *multipart.FileHeader, hash string) string {
 	return fileURL
 }
 
+func UploadFileChunk(file *multipart.FileHeader, hash string, fileHash string, index string, total string) string {
+	src, err := file.Open()
+	if err != nil {
+		panic(errors.ErrUploadFile) // 抛出自定义错误
+	}
+	defer src.Close()
+	var target models.File
+	global.DB.Where("hash = ?", fileHash).First(&target)
+	if target.ID != 0 && target.Status == 1 {
+		return fmt.Sprintf("http://%s:%s/%s/%s", global.Config.Minio.Endpoint, global.Config.Minio.Port, global.Config.Minio.BucketName, target.Filename)
+	}
+	// 文件第一次上传
+	if target.ID == 0 {
+		filename := fmt.Sprintf("%d-%s", time.Now().Unix(), file.Filename) // 使用当前时间生成唯一的文件名
+		newfile := &models.File{
+			Filename: filename,
+			Hash:     fileHash,
+			Original: file.Filename,
+			Size:     file.Size,
+			Status:   1,
+			CreateAt: time.Now(),
+			UpdateAt: time.Now(),
+		}
+		result := global.DB.Create(newfile)
+		if result.Error != nil {
+			panic(errors.ErrUploadFile) // 抛出自定义错误
+		}
+	}
+	// 文件之前上传过
+	if target.ID != 0 && target.Status == 0 {
+
+	}
+
+	objectName := fmt.Sprintf("%s-%s", fileHash, index)
+	_, err = global.MinioClient.PutObject(context.Background(), global.Config.Minio.BucketName, objectName, src, file.Size, minio.PutObjectOptions{ContentType: file.Header.Get("Content-Type")})
+	if err != nil {
+		panic(errors.ErrUploadFile) // 抛出自定义错误
+	}
+	return ""
+}
+
 func List() []models.File {
 	var files []models.File
 	global.DB.Find(&files)

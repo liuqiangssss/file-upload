@@ -5,7 +5,6 @@ import (
 	"file-upload/services"
 	"github.com/gin-gonic/gin"
 	"net/http"
-	"os"
 )
 
 type Response struct {
@@ -17,12 +16,12 @@ type Response struct {
 // 分片上传
 func UploadChunk(ctx *gin.Context) {
 	hash := ctx.PostForm("hash")
+	fileHash := ctx.PostForm("fileHash")
 	index := ctx.PostForm("index")
 	file, _ := ctx.FormFile("file")
-	//total := ctx.PostForm("total")
+	total := ctx.PostForm("total")
 	// 保存文件,在程序根目录，/server/uploads 目录下新建一个对应hash的目录，保存文件名为hash-index，写出相应代码
-	pwd, _ := os.Getwd()
-	_ = ctx.SaveUploadedFile(file, pwd+"/server/uploads/"+hash+"/"+hash+"-"+index)
+	services.UploadFileChunk(file, hash, fileHash, index, total)
 	ctx.JSON(http.StatusOK, Response{
 		0,
 		nil,
